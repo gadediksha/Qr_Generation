@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4-QR Generator | Fast & Secure</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h1>4-QR Generator</h1>
+        <p style="margin-bottom: 20px; color: #666;">Select a feature to generate your QR</p>
+
+        <form method="POST" id="qrForm">
+            <select name="qr_type" id="qr_type" onchange="toggleInputs()">
+                <option value="text" {% if request.form.get('qr_type') == 'text' %}selected{% endif %}>1. Text to Image</option>
+                <option value="pay" {% if request.form.get('qr_type') == 'pay' %}selected{% endif %}>2. Auto Pay (UPI)</option>
+                <option value="url" {% if request.form.get('qr_type') == 'url' %}selected{% endif %}>3. Website URL</option>
+            </select>
+
+            <div id="input-group">
+                <div id="text-input" class="input-field">
+                    <input type="text" name="content" placeholder="Enter your secret message..." value="{{ request.form.get('content', '') }}">
+                </div>
+
+                <div id="url-input" class="input-field" style="display: none;">
+                    <input type="url" name="url" placeholder="https://www.google.com" value="{{ request.form.get('url', '') }}">
+                </div>
+
+                <div id="pay-input" class="input-field" style="display: none;">
+                    <input type="text" name="upi" placeholder="UPI ID (e.g., alex@okaxis)" value="{{ request.form.get('upi', '') }}">
+                    <input type="text" name="name" placeholder="Receiver Name" style="margin-top: 10px;" value="{{ request.form.get('name', '') }}">
+                    <input type="number" name="amount" placeholder="Amount (Optional)" style="margin-top: 10px;" value="{{ request.form.get('amount', '') }}">
+                </div>
+            </div>
+
+            <button type="submit">Generate QR Code</button>
+        </form>
+
+        {% if qr_image %}
+        <div class="result-section">
+            <h2>Success! Your QR Code:</h2>
+            <img src="{{ url_for('static', filename='qrcodes/' + qr_image) }}" alt="Generated QR Code">
+            <br>
+            <a href="{{ url_for('static', filename='qrcodes/' + qr_image) }}" download class="download-link" style="display: inline-block; margin-top: 10px; color: #3498db; text-decoration: none; font-weight: bold;">
+                📥 Download Image
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleInputs() {
+            const type = document.getElementById('qr_type').value;
+            document.getElementById('text-input').style.display = 'none';
+            document.getElementById('url-input').style.display = 'none';
+            document.getElementById('pay-input').style.display = 'none';
+
+            if (type === 'text') {
+                document.getElementById('text-input').style.display = 'block';
+            } else if (type === 'url') {
+                document.getElementById('url-input').style.display = 'block';
+            } else if (type === 'pay') {
+                document.getElementById('pay-input').style.display = 'block';
+            }
+        }
+
+        // Run on page load to keep selected view after form submission
+        window.onload = toggleInputs;
+    </script>
+</body>
+</html>
